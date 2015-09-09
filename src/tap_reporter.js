@@ -22,9 +22,13 @@
         return dupe;
     }
     function log(str) {
-        var con = global.console || console;
-        if (con && con.log) {
-            con.log(str);
+        if (global.print)
+            global.print(str);
+        else {
+            var con = global.console || console;
+            if (con && con.log) {
+                con.log(str);
+            }
         }
     }
 

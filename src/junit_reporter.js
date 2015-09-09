@@ -45,9 +45,13 @@
         return path + filename;
     }
     function log(str) {
-        var con = global.console || console;
-        if (con && con.log) {
-            con.log(str);
+        if (global.print)
+            global.print(str);
+        else {
+            var con = global.console || console;
+            if (con && con.log) {
+                con.log(str);
+            }
         }
     }
 
@@ -242,6 +246,12 @@
                 fs.closeSync(xmlfile);
                 return;
             }
+            
+            function softshWrite(path, filename, text) {
+                var filepath = (path + "/" + filename).replace(/\\+/g, "/").replace(/\/+/g, "/");
+                store(filepath, text);
+            }
+
             // Attempt writing with each possible environment.
             // Track errors in case no write succeeds
             try {
@@ -252,6 +262,10 @@
                 nodeWrite(path, filename, text);
                 return;
             } catch (f) { errors.push('  NodeJS attempt: ' + f.message); }
+            try {
+                softshWrite(path, filename, text);
+                return;
+            } catch (g) { errors.push('  softsh attempt: ' + g.message); }
 
             // If made it here, no write succeeded.  Let user know.
             log("Warning: writing junit report failed for '" + path + "', '" +
